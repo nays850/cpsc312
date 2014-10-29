@@ -1,4 +1,17 @@
+search_pawns :: String -> Char -> [String]
+search_pawns inlist c = search_pawns_helper "" (head inlist) (tail inlist) c []
 
+search_pawns_helper :: String->Char->String->Char->[String]->[String]
+search_pawns_helper past current next c set
+ | null next = set
+ | current /= c	= search_pawns_helper (past ++ (current:"")) (head next) (tail next) c set
+ | otherwise 	= search_pawns_helper (past ++ (current:"")) (head next) (tail next) c
+			((generate_new (past ++ ('*': next)) c ): set)
+
+
+generate_new :: String->Char->String
+generate_new inlist c = inlist
+	
 
 parser :: String -> Int -> Int -> [String]
 parser inlist n i
