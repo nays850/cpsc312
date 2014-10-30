@@ -5,18 +5,21 @@ generateMove inlist past c
  | otherwise = (past ++ (concat (generateNew (head inlist) 0 "-*" (c:"-"))) ++ (concat (tail inlist))       ):
  	       (past ++ (concat (generateNew (head inlist) 0 "*-" ('-':(c:""))) ) ++ (concat (tail inlist))  ):
 	       (past ++ (concat (generateNew (head inlist) 0 ('*':(c:"")++('-':""))  ('-':(c:"")++(c:""))) ++ (concat (tail inlist)))):
-	       (past ++ (concat (generateNew (head inlist) 0 ('-':(c:"")++('*':""))  (c:(c:"")++('-':""))) ++ (concat (tail inlist)))):[]
+	       (past ++ (concat (generateNew (head inlist) 0 ('-':(c:"")++('*':""))  (c:(c:"")++('-':""))) ++ (concat (tail inlist)))):
+	       (past ++ (concat (generateNew (head inlist) 0 ('*':(c:"")++(op:""))  ('-':(c:"")++(c:""))) ++ (concat (tail inlist)))):
+	       (past ++ (concat (generateNew (head inlist) 0 (op:(c:"")++('*':""))  (c:(c:"")++('-':""))) ++ (concat (tail inlist)))):[]
+  where op = getOpp c
 
 
-search_pawns :: String -> Char -> [String]
-search_pawns inlist c = search_pawns_helper "" (head inlist) (tail inlist) c []
+search_pawns :: String -> Char -> Int -> [String]
+search_pawns inlist c n = search_pawns_helper "" (head inlist) (tail inlist) c n []
 
-search_pawns_helper :: String->Char->String->Char->[String]->[String]
-search_pawns_helper past current next c set
+search_pawns_helper :: String->Char->String->Char-> Int -> [String]->[String]
+search_pawns_helper past current next c n set
  | null next = set
- | current /= c	= search_pawns_helper (past ++ (current:"")) (head next) (tail next) c set
- | otherwise 	= search_pawns_helper (past ++ (current:"")) (head next) (tail next) c
-			( (rmLoss (generate_new (past ++ ('*': next)) c ) lengthStr) ++ set)
+ | current /= c	= search_pawns_helper (past ++ (current:"")) (head next) (tail next) c n set
+ | otherwise 	= search_pawns_helper (past ++ (current:"")) (head next) (tail next) c n
+			( (rmLoss (generate_new (past ++ ('*': next)) c n) lengthStr) ++ set)
  where lengthStr = length (past++('*':next))
 
 rmLoss :: [String] -> Int -> [String]
@@ -25,8 +28,8 @@ rmLoss inlist n
  | length (head inlist) == n = (head inlist):(rmLoss (tail inlist) n)
  | otherwise = rmLoss (tail inlist) n
 
-generate_new :: String->Char->[String]
-generate_new inlist c  = generateMove (parser inlist 3 0) [] c
+generate_new :: String->Char -> Int ->[String]
+generate_new inlist c n  = generateMove (parser inlist n 0) [] c
 
 
 --generateNew 
