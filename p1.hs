@@ -1,3 +1,18 @@
+
+dumbLeft :: [String] -> Int-> [String]
+dumbLeft inlist n
+ | null inlist = []
+ | (length (head inlist) ) /= 3*n*n -3*n +1 = (dumbLeft (tail inlist) n )
+ | otherwise =  (concat (transpose_right(parser (head inlist) n 0 ) n 1 )) : (dumbLeft (tail inlist) n )
+-- transpose_left?
+
+dumbRight :: [String] -> Int-> [String]
+dumbRight inlist n
+ | null inlist = []
+ | (length (head inlist) ) /= 3*n*n -3*n +1 = (dumbRight (tail inlist) n )
+ | otherwise = (concat (transpose_left( parser (head inlist) n 0 ) n 1 )) : (dumbRight (tail inlist) n )
+
+
 generateMove :: [String]->String->Char->[String]
 generateMove inlist past c
  | null inlist = []
@@ -8,11 +23,14 @@ generateMove inlist past c
 	       (past ++ (concat (generateNew (head inlist) 0 ('-':(c:"")++('*':""))  (c:(c:"")++('-':""))) ++ (concat (tail inlist)))):
 	       (past ++ (concat (generateNew (head inlist) 0 ('*':(c:"")++(op:""))  ('-':(c:"")++(c:""))) ++ (concat (tail inlist)))):
 	       (past ++ (concat (generateNew (head inlist) 0 (op:(c:"")++('*':""))  (c:(c:"")++('-':""))) ++ (concat (tail inlist)))):[]
-  where op = getOpp c
+ where op = getOpp c
+
 
 
 search_pawns :: String -> Char -> Int -> [String]
-search_pawns inlist c n = search_pawns_helper "" (head inlist) (tail inlist) c n []
+search_pawns inlist c n 
+ | null inlist = []
+ |otherwise = search_pawns_helper "" (head inlist) (tail inlist) c n []
 
 search_pawns_helper :: String->Char->String->Char-> Int -> [String]->[String]
 search_pawns_helper past current next c n set
@@ -29,8 +47,9 @@ rmLoss inlist n
  | otherwise = rmLoss (tail inlist) n
 
 generate_new :: String->Char -> Int ->[String]
-generate_new inlist c n  = generateMove (parser inlist n 0) [] c
-
+generate_new inlist c n  = (generateMove (parser inlist n 0) [] c)++
+	                       (dumbLeft (generateMove (transpose_left (parser inlist n 0) n 1) [] c) n)++
+		       (dumbRight (generateMove (transpose_right (parser inlist n 0) n 1) [] c) n)
 
 --generateNew 
 --referenced from pegpuzzle program
@@ -74,6 +93,7 @@ parser inlist n i
 parser_take :: String -> Int -> String
 parser_take inlist n
  | n == 0 = []
+ | null inlist = []
  | otherwise = (head inlist) : (parser_take (tail inlist) (n - 1))
 
 
@@ -111,9 +131,9 @@ transpose_drop inlist start end
 
 transpose_right :: [String] -> Int -> Int -> [String]
 transpose_right inlist n i
- | i < n = (transpose_ind_r inlist 0 (n + i - 2) ) 
+ | i < n = (reverse (transpose_ind_r inlist 0 (n + i - 2) ))
 	:(transpose_right (transpose_drop_r inlist 0 (n + i - 2)) n (i+1))
- | i <= 2*n - 1 = (transpose_ind_r inlist (i - n) (2*n - 2)) 
+ | i <= 2*n - 1 = (reverse (transpose_ind_r inlist (i - n) (2*n - 2)))
 	:(transpose_right (transpose_drop_r inlist (i - n) (2*n - 2)) n (i+1))
  | otherwise = []
 
