@@ -1,3 +1,13 @@
+generateMove :: [String]->String->Char->[String]
+generateMove inlist past c
+ | null inlist = []
+ | not (elem '*' (head inlist)) = (generateMove (tail inlist) (past ++ (head inlist))  c)
+ | otherwise = (past ++ (concat (generateNew (head inlist) 0 "-*" (c:"-"))) ++ (concat (tail inlist))       ):
+ 	       (past ++ (concat (generateNew (head inlist) 0 "*-" ('-':(c:""))) ) ++ (concat (tail inlist))  ):
+	       (past ++ (concat (generateNew (head inlist) 0 ('*':(c:"")++('-':""))  ('-':(c:"")++(c:""))) ++ (concat (tail inlist)))):
+	       (past ++ (concat (generateNew (head inlist) 0 ('-':(c:"")++('*':""))  (c:(c:"")++('-':""))) ++ (concat (tail inlist)))):[]
+
+
 search_pawns :: String -> Char -> [String]
 search_pawns inlist c = search_pawns_helper "" (head inlist) (tail inlist) c []
 
@@ -6,12 +16,49 @@ search_pawns_helper past current next c set
  | null next = set
  | current /= c	= search_pawns_helper (past ++ (current:"")) (head next) (tail next) c set
  | otherwise 	= search_pawns_helper (past ++ (current:"")) (head next) (tail next) c
-			((generate_new (past ++ ('*': next)) c ): set)
+			( (rmLoss (generate_new (past ++ ('*': next)) c ) lengthStr) ++ set)
+ where lengthStr = length (past++('*':next))
+
+rmLoss :: [String] -> Int -> [String]
+rmLoss inlist n
+ | null inlist = []
+ | length (head inlist) == n = (head inlist):(rmLoss (tail inlist) n)
+ | otherwise = rmLoss (tail inlist) n
+
+generate_new :: String->Char->[String]
+generate_new inlist c  = generateMove (parser inlist 3 0) [] c
 
 
-generate_new :: String->Char->String
-generate_new inlist c = inlist
-	
+--generateNew 
+--referenced from pegpuzzle program
+generateNew currState pos oldSegment newSegment
+   | pos + (length oldSegment) > length currState    = []
+   | segmentEqual currState pos oldSegment           =
+        (replaceSegment currState pos newSegment):
+        (generateNew currState (pos + 1) oldSegment newSegment)
+   | otherwise                                       =
+        (generateNew currState (pos + 1) oldSegment newSegment)
+
+--segmentEqual
+--referenced from pegpuzzle program
+segmentEqual currState pos oldSegment = 
+   (oldSegment == take (length oldSegment) (drop pos currState))
+
+--replaceSegment
+--referenced from pegpuzzle program
+replaceSegment oldList pos segment
+   | pos == 0  = segment ++ drop (length segment) oldList
+   | otherwise = 
+        (head oldList):
+        (replaceSegment (tail oldList) (pos - 1) segment)
+
+--getOpp
+--returns the opponent's pawn color
+getOpp :: Char -> Char
+getOpp c
+ | c == 'B' = 'W'
+ | otherwise = 'B'	
+
 
 parser :: String -> Int -> Int -> [String]
 parser inlist n i
