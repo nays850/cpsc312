@@ -4,7 +4,7 @@ dumbLeft inlist n
  | null inlist = []
  | (length (head inlist) ) /= 3*n*n -3*n +1 = (dumbLeft (tail inlist) n )
  | otherwise =  (concat (transpose_right(parser (head inlist) n 0 ) n 1 )) : (dumbLeft (tail inlist) n )
--- transpose_left?
+
 
 dumbRight :: [String] -> Int-> [String]
 dumbRight inlist n
