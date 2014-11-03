@@ -26,8 +26,8 @@ generateTemplate past next curr strSet
  | null generateCurr = (generateTemplate past next curr (tail strSet) )
  | otherwise =  (past ++ generateCurr ++ nextCons):(generateTemplate past next curr (tail strSet) ) 
  where {   currStr = (head strSet);
-	 generateCurr = concat (generateNew curr 0 (fst currStr) (snd currStr) );
-                nextCons = (concat next); }
+	generateCurr = concat (generateNew curr 0 (fst currStr) (snd currStr) );
+               nextCons = (concat next); }
 
 search_pawns :: String -> Char -> Int -> [String]
 search_pawns inlist c n 
@@ -36,11 +36,11 @@ search_pawns inlist c n
 
 search_pawns_helper :: String->Char->String->Char-> Int -> [String]->[String]
 search_pawns_helper past current next c n set
- | null next = set
+ | ((next == []) && (current == c) )  = (filter (not . null) (generate_new (past ++ ('*':[])) c n)) ++ set
+ | ((next == []) && (set /= [] ) )     = set
  | current /= c	= search_pawns_helper (past ++ (current:"")) (head next) (tail next) c n set
  | otherwise 	= search_pawns_helper (past ++ (current:"")) (head next) (tail next) c n
 			((filter (not . null) (generate_new (past ++ ('*': next)) c n)) ++ set)
- where lengthStr = length (past++('*':next))
 
 
 generate_new :: String->Char -> Int ->[String]
@@ -48,10 +48,11 @@ generate_new inlist c n  = (generateMove (parser inlist n 0) [] c)++
 	                       (dumbLeft (filter (not . null) (generateMove (transpose_left (parser inlist n 0) n 1) [] c)) n)++
 		         (dumbRight (filter (not . null) (generateMove (transpose_right (parser inlist n 0) n 1) [] c)) n)
 
+
 --generateNew 
 --referenced from pegpuzzle program
 generateNew currState pos oldSegment newSegment
-   | pos + (length oldSegment) > length currState    = []
+   | pos + (length oldSegment) > length currState   = []
    | segmentEqual currState pos oldSegment           =
         (replaceSegment currState pos newSegment):
         (generateNew currState (pos + 1) oldSegment newSegment)
@@ -75,8 +76,8 @@ replaceSegment oldList pos segment
 --returns the opponent's pawn color
 getOpp :: Char -> Char
 getOpp c
- | c == 'B' = 'W'
- | otherwise = 'B'	
+ | c == 'W' = 'B'
+ | otherwise = 'W'	
 
 
 parser :: String -> Int -> Int -> [String]
@@ -88,11 +89,10 @@ parser inlist n i
 
 
 parser_take :: String -> Int -> String
-parser_take inlist n
+parser_take (x:xs) n
  | n == 0 = []
- | null inlist = []
- | otherwise = (head inlist) : (parser_take (tail inlist) (n - 1))
-
+ | null xs = x:[]
+ | otherwise = x : (parser_take xs (n - 1))
 
 
 drop_last :: [a] -> [a]
