@@ -19,7 +19,7 @@ generateMove inlist past c
  | not (elem '*' (head inlist)) = (generateMove (tail inlist) (past ++ (head inlist))  c)
  | otherwise = generateTemplate past (tail inlist) (head inlist) strSet 
  where { op = getOpp c;
-              strSet = [(  "-*", (c:"-") , ( "*-", ('-':(c:"")) ), ('*':c:('-':""),    '-':c:(c:"") ), ( '-':c:('*':""),   c:c:('-':"") ), ( '*':c:(op:""),   '-':c:(c:"") ), ( op:c:('*':""),   c:c:('-':"") )];}
+              strSet = [(  "-*", (c:"-") ) , ( "*-", ('-':(c:"")) ), ('*':c:('-':""),    '-':c:(c:"") ), ( '-':c:('*':""),   c:c:('-':"") ), ( '*':c:(op:""),   '-':c:(c:"") ), ( op:c:('*':""),   c:c:('-':"") )];}
 
 generateTemplate :: String-> [String] -> String -> [(String, String)] -> [String]
 generateTemplate past next curr strSet
