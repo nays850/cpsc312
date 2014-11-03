@@ -1,9 +1,4 @@
 
-num3 = "WWW-WW-------BB-BBB"
-num4 = "WWWW-WWW---------------------BBB-BBBB"
-num5 = "WWWWW-WWWW-----------------------------------------BBBB-BBBBB"
-num7 = "WWWWWWW-WWWWWW---------------------------------------------------------------------------------------------------BBBBBB-BBBBBBB"
-
 dumbLeft :: [String] -> Int-> [String]
 dumbLeft inlist n
  | null inlist = []
