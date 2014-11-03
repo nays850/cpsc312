@@ -2,14 +2,12 @@
 dumbLeft :: [String] -> Int-> [String]
 dumbLeft inlist n
  | null inlist = []
- | null (head inlist)  = (dumbLeft (tail inlist) n)
  | otherwise =  (concat (transpose_right(parser (head inlist) n 0 ) n 1 )) : (dumbLeft (tail inlist) n)
 
 
 dumbRight :: [String] -> Int -> [String]
 dumbRight inlist n 
  | null inlist = []
- | null (head inlist) = (dumbRight (tail inlist) n)
  | otherwise = (concat (transpose_left( parser (head inlist) n 0 ) n 1 )) : (dumbRight (tail inlist) n )
 
 
@@ -19,7 +17,8 @@ generateMove inlist past c
  | not (elem '*' (head inlist)) = (generateMove (tail inlist) (past ++ (head inlist))  c)
  | otherwise = generateTemplate past (tail inlist) (head inlist) strSet 
  where { op = getOpp c;
-              strSet = [(  "-*", (c:"-") ) , ( "*-", ('-':(c:"")) ), ('*':c:('-':""),    '-':c:(c:"") ), ( '-':c:('*':""),   c:c:('-':"") ), ( '*':c:(op:""),   '-':c:(c:"") ), ( op:c:('*':""),   c:c:('-':"") )];}
+              strSet = [(  "-*", (c:"-") ), ( "*-", ('-':(c:"")) ), ('*':c:('-':""),    '-':c:(c:"") ),
+                           ( '-':c:('*':""),   c:c:('-':"") ), ( '*':c:(op:""),   '-':c:(c:"") ), ( op:c:('*':""),   c:c:('-':"") )];}
 
 generateTemplate :: String-> [String] -> String -> [(String, String)] -> [String]
 generateTemplate past next curr strSet
@@ -40,19 +39,14 @@ search_pawns_helper past current next c n set
  | null next = set
  | current /= c	= search_pawns_helper (past ++ (current:"")) (head next) (tail next) c n set
  | otherwise 	= search_pawns_helper (past ++ (current:"")) (head next) (tail next) c n
-			((rmLoss (generate_new (past ++ ('*': next)) c n)) ++ set)
+			((filter (not . null) (generate_new (past ++ ('*': next)) c n)) ++ set)
  where lengthStr = length (past++('*':next))
 
-rmLoss :: [String] -> [String]
-rmLoss inlist
- | null inlist = []
- | null (head inlist) = rmLoss (tail inlist) 
- | otherwise = (head inlist) : (rmLoss (tail inlist) )
 
 generate_new :: String->Char -> Int ->[String]
 generate_new inlist c n  = (generateMove (parser inlist n 0) [] c)++
-	                       (dumbLeft (generateMove (transpose_left (parser inlist n 0) n 1) [] c) n)++
-		       (dumbRight (generateMove (transpose_right (parser inlist n 0) n 1) [] c) n)
+	                       (dumbLeft (filter (not . null) (generateMove (transpose_left (parser inlist n 0) n 1) [] c)) n)++
+		         (dumbRight (filter (not . null) (generateMove (transpose_right (parser inlist n 0) n 1) [] c)) n)
 
 --generateNew 
 --referenced from pegpuzzle program
