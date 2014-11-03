@@ -17,17 +17,17 @@ generateMove inlist past c
  | not (elem '*' (head inlist)) = (generateMove (tail inlist) (past ++ (head inlist))  c)
  | otherwise = generateTemplate past (tail inlist) (head inlist) strSet 
  where { op = getOpp c;
-              strSet = [(  "-*", (c:"-") ), ( "*-", ('-':(c:"")) ), ('*':c:('-':""),    '-':c:(c:"") ),
-                           ( '-':c:('*':""),   c:c:('-':"") ), ( '*':c:(op:""),   '-':c:(c:"") ), ( op:c:('*':""),   c:c:('-':"") )];}
+              strSet = [(  "-*", (c:"-") ), ( "*-", ('-':(c:"")) ), ('*':c:('-':""), '-':c:(c:"") ),
+                        ( '-':c:('*':""), c:c:('-':"") ), ('*':c:(op:""),'-':c:(c:"") ), ( op:c:('*':""), c:c:('-':"") )];}
 
 generateTemplate :: String-> [String] -> String -> [(String, String)] -> [String]
 generateTemplate past next curr strSet
  | null strSet = []
  | null generateCurr = (generateTemplate past next curr (tail strSet) )
  | otherwise =  (past ++ generateCurr ++ nextCons):(generateTemplate past next curr (tail strSet) ) 
- where {   currStr = (head strSet);
+ where {currStr = (head strSet);
 	generateCurr = concat (generateNew curr 0 (fst currStr) (snd currStr) );
-               nextCons = (concat next); }
+        nextCons = (concat next); }
 
 search_pawns :: String -> Char -> Int -> [String]
 search_pawns inlist c n 
@@ -45,7 +45,7 @@ search_pawns_helper past current next c n set
 
 generate_new :: String->Char -> Int ->[String]
 generate_new inlist c n  = (generateMove (parser inlist n 0) [] c)++
-	                       (dumbLeft (filter (not . null) (generateMove (transpose_left (parser inlist n 0) n 1) [] c)) n)++
+	                 (dumbLeft (filter (not . null) (generateMove (transpose_left (parser inlist n 0) n 1) [] c)) n)++
 		         (dumbRight (filter (not . null) (generateMove (transpose_right (parser inlist n 0) n 1) [] c)) n)
 
 
