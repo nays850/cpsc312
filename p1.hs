@@ -1,15 +1,20 @@
 
+num3 = "WWW-WW-------BB-BBB"
+num4 = "WWWW-WWW---------------------BBB-BBBB"
+num5 = "WWWWW-WWWW-----------------------------------------BBBB-BBBBB"
+num7 = "WWWWWWW-WWWWWW---------------------------------------------------------------------------------------------------BBBBBB-BBBBBBB"
+
 dumbLeft :: [String] -> Int-> [String]
 dumbLeft inlist n
  | null inlist = []
- | (length (head inlist) ) /= 3*n*n -3*n +1 = (dumbLeft (tail inlist) n )
- | otherwise =  (concat (transpose_right(parser (head inlist) n 0 ) n 1 )) : (dumbLeft (tail inlist) n )
+ | null (head inlist)  = (dumbLeft (tail inlist) n)
+ | otherwise =  (concat (transpose_right(parser (head inlist) n 0 ) n 1 )) : (dumbLeft (tail inlist) n)
 
 
-dumbRight :: [String] -> Int-> [String]
-dumbRight inlist n
+dumbRight :: [String] -> Int -> [String]
+dumbRight inlist n 
  | null inlist = []
- | (length (head inlist) ) /= 3*n*n -3*n +1 = (dumbRight (tail inlist) n )
+ | null (head inlist) = (dumbRight (tail inlist) n)
  | otherwise = (concat (transpose_left( parser (head inlist) n 0 ) n 1 )) : (dumbRight (tail inlist) n )
 
 
@@ -17,15 +22,23 @@ generateMove :: [String]->String->Char->[String]
 generateMove inlist past c
  | null inlist = []
  | not (elem '*' (head inlist)) = (generateMove (tail inlist) (past ++ (head inlist))  c)
- | otherwise = (past ++ (concat (generateNew (head inlist) 0 "-*" (c:"-"))) ++ (concat (tail inlist))       ):
- 	       (past ++ (concat (generateNew (head inlist) 0 "*-" ('-':(c:""))) ) ++ (concat (tail inlist))  ):
-	       (past ++ (concat (generateNew (head inlist) 0 ('*':(c:"")++('-':""))  ('-':(c:"")++(c:""))) ++ (concat (tail inlist)))):
-	       (past ++ (concat (generateNew (head inlist) 0 ('-':(c:"")++('*':""))  (c:(c:"")++('-':""))) ++ (concat (tail inlist)))):
-	       (past ++ (concat (generateNew (head inlist) 0 ('*':(c:"")++(op:""))  ('-':(c:"")++(c:""))) ++ (concat (tail inlist)))):
-	       (past ++ (concat (generateNew (head inlist) 0 (op:(c:"")++('*':""))  (c:(c:"")++('-':""))) ++ (concat (tail inlist)))):[]
- where op = getOpp c
+ | otherwise = generateTemplate past (tail inlist) (head inlist) strSet 
+ where { op = getOpp c;
+              strSet = [(  "-*", (c:"-") ),
+	             ( "*-", ('-':(c:"")) ),
+	             ('*':c:('-':""),    '-':c:(c:"") ),
+                           ( '-':c:('*':""),   c:c:('-':"") ),
+                           ( '*':c:(op:""),   '-':c:(c:"") ),
+                           ( op:c:('*':""),   c:c:('-':"") )];}
 
-
+generateTemplate :: String-> [String] -> String -> [(String, String)] -> [String]
+generateTemplate past next curr strSet
+ | null strSet = []
+ | null generateCurr = (generateTemplate past next curr (tail strSet) )
+ | otherwise =  (past ++ generateCurr ++ nextCons):(generateTemplate past next curr (tail strSet) ) 
+ where {   currStr = (head strSet);
+	 generateCurr = concat (generateNew curr 0 (fst currStr) (snd currStr) );
+                nextCons = (concat next); }
 
 search_pawns :: String -> Char -> Int -> [String]
 search_pawns inlist c n 
@@ -37,14 +50,14 @@ search_pawns_helper past current next c n set
  | null next = set
  | current /= c	= search_pawns_helper (past ++ (current:"")) (head next) (tail next) c n set
  | otherwise 	= search_pawns_helper (past ++ (current:"")) (head next) (tail next) c n
-			( (rmLoss (generate_new (past ++ ('*': next)) c n) lengthStr) ++ set)
+			((rmLoss (generate_new (past ++ ('*': next)) c n)) ++ set)
  where lengthStr = length (past++('*':next))
 
-rmLoss :: [String] -> Int -> [String]
-rmLoss inlist n
+rmLoss :: [String] -> [String]
+rmLoss inlist
  | null inlist = []
- | length (head inlist) == n = (head inlist):(rmLoss (tail inlist) n)
- | otherwise = rmLoss (tail inlist) n
+ | null (head inlist) = rmLoss (tail inlist) 
+ | otherwise = (head inlist) : (rmLoss (tail inlist) )
 
 generate_new :: String->Char -> Int ->[String]
 generate_new inlist c n  = (generateMove (parser inlist n 0) [] c)++
