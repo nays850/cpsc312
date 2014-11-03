@@ -1,4 +1,4 @@
-
+      
 dumbLeft :: [String] -> Int-> [String]
 dumbLeft inlist n
  | null inlist = []
@@ -148,3 +148,26 @@ transpose_drop_r inlist start end
  | end >= 0   = (tail (head inlist))
 		:(transpose_drop_r (tail inlist) start (end - 1))
  | otherwise = inlist
+
+--input: takes a string representing a board (instring) and a char representing the pawn colour to count (pawn_to_count)
+--output: returns the count of the given pawn colour in the board
+pawn_counter :: String -> Char -> Int
+pawn_counter instring pawn_to_count = pawn_counter_helper instring pawn_to_count 0
+
+pawn_counter_helper :: String -> Char -> Int -> Int
+pawn_counter_helper instring pawn_to_count count
+ 	|null instring = count
+ 	|(head instring) == pawn_to_count = pawn_counter_helper (tail instring) pawn_to_count (count + 1)
+ 	|otherwise = pawn_counter_helper (tail instring) pawn_to_count count
+
+
+--input: takes a string representing a board (instring), a char representing the pawn colour of the current player (whos_turn) and
+--an int representing the size of one edge of the board (n). n is used to calculate the number of pieces in the original board
+--output: -10 if the current player has less than half of its original number of pawns (lose), +10 if the opponent has less than half, otherwise
+--return the number of the current player's pieces minus the opponent's
+board_evaluator_basic :: String -> Char -> Int -> Int
+board_evaluator_basic instring whos_turn n
+	|(fromIntegral (pawn_counter instring whos_turn)) < (fromIntegral ((2*n) - 1) / 2) = -10
+	|(fromIntegral(pawn_counter instring (getOpp whos_turn))) < (fromIntegral ((2*n) - 1) / 2) = 10
+	|otherwise = (pawn_counter instring whos_turn) - (pawn_counter instring (getOpp whos_turn))
+ 
