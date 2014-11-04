@@ -186,3 +186,21 @@ evaluate_children_helper listBoards c n listInts
 	|null listBoards = reverse listInts
 	|otherwise = evaluate_children_helper (tail listBoards) c n ((board_evaluator_basic (head listBoards) c n):listInts)
 
+
+staticMoveEv :: String -> Char -> Int -> Bool
+staticMoveEv inlist c n
+ | null inlist = False 
+ | (not curr) = staticMoveEv (tail inlist) c n
+ | otherwise = True
+ where  curr = segEqualAll inlist c n 
+
+segEqualAll :: String -> Char -> Int -> Bool
+segEqualAll inlist c n = 
+ ( (segmentEqual inlist 0 (c:"-"))||
+  (segmentEqual inlist 0 ('-':c:""))||
+  (segmentEqual inlist 0 (c:c:"-"))||
+  (segmentEqual inlist 0 ('-':c:c:""))||
+  (segmentEqual inlist 0 ( (getOpp c):c:c:""))||
+  (segmentEqual inlist 0 ( c:c:(getOpp c):"")) )
+
+ 
