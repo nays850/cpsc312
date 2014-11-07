@@ -220,6 +220,7 @@ pawn_counter_helper instring pawn_to_count count
 --return the number of the current player's pieces minus the opponent's
 board_evaluator_basic :: String -> Char -> Int -> Int
 board_evaluator_basic instring whos_turn n
+  |(not (finalStaticMoveEv instring whos_turn n)) = -10
 	|(fromIntegral (pawn_counter instring whos_turn)) < (fromIntegral ((2*n) - 1) / 2) = -10
 	|(fromIntegral (pawn_counter instring (getOpp whos_turn))) < (fromIntegral ((2*n) - 1) / 2) = 10
 	|otherwise = (pawn_counter instring whos_turn) - (pawn_counter instring (getOpp whos_turn))
