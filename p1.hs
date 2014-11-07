@@ -1,35 +1,25 @@
+import Data.List
 
-crusher :: String -> Char -> Int -> Int -> [String]
-crusher inlist c d n =  (goMinmax inlist c d n [inlist]):inlist:[]
+crusher :: [String] -> Char -> Int -> Int -> [String]
+crusher inlist c d n =  (goMinmax (head inlist) c d n inlist):inlist
 
 goMinmax :: String -> Char -> Int -> Int -> [String]-> String
-goMinmax inlist c d n past  = getNext (search_pawns inlist c n) nextList nextOrder past
- where { nextList = (minimaxTrigger inlist c d n); 
-             nextMax = maximum nextList;
-             nextOrder = (getOrderTrigger nextList nextMax);} 
+goMinmax inlist c d n past  = getNext (reverse pawnList) past
+ where { pawnList = sort (zip (minimaxTrigger inlist c d n) (search_pawns inlist c n))} 
 
-getNext :: [String] -> [Int] -> Int -> [String] -> String
-getNext inlist numlist order past
- | null inlist = []
- | not (elem currMax past) =  currMax
- | otherwise = getNext (removeX inlist order 0) nextList nextOrder past
- where {  nextList = (removeX numlist order 0);
-	nextMax = maximum nextList;
-	nextOrder = (getOrderTrigger nextList nextMax);
-	currMax = head (drop order inlist);}
-
---remove Xth component of the list
-removeX :: (Eq a) => [a] -> Int -> Int -> [a]
-removeX list n i
- | null list = []
- | n == i = (tail list)
- | otherwise = (head list):(removeX (tail list) n (i+1))
+getNext :: [(Int, String)] ->[String] -> String
+getNext pawnList past
+ | null pawnList = []
+ | not (elem headStr past) = headStr
+ | otherwise = getNext (tail pawnList) past
+ where headStr = (snd (head pawnList))
 
 minimax :: String-> Char -> Int -> Int -> Int -> Int
 minimax inlist c d n curr
- | (curr == d ) = (board_evaluator_basic inlist c n)
- | (mod curr 2) == 0 = minimum ( minimaxAll (search_pawns inlist c n) c d n (curr + 1) )
- | otherwise = maximum ( minimaxAll (search_pawns inlist op n) c d n (curr + 1) )
+ | (curr == d ) = currentBoard
+ | (currentBoard == 10 || currentBoard == -10 ) = currentBoard
+ | (mod curr 2) == 0 = maximum ( minimaxAll (search_pawns inlist c n) c d n (curr + 1) )
+ | otherwise = minimum ( minimaxAll (search_pawns inlist op n) c d n (curr + 1) )
  where {currentBoard = (board_evaluator_basic inlist c n);
            op = getOpp c;}
 
@@ -42,15 +32,6 @@ minimaxAll :: [String] -> Char -> Int -> Int -> Int -> [Int]
 minimaxAll inlist c d n curr
  | null inlist = []
  | otherwise = (minimax (head inlist) c d n curr ):(minimaxAll (tail inlist) c d n curr)
-
-getOrderTrigger :: [Int] -> Int -> Int
-getOrderTrigger inlist n = getOrder inlist n 0
-
-getOrder :: [Int] -> Int -> Int -> Int
-getOrder inlist n i 
- | null inlist = 0
- | (head inlist) == n = i
- | otherwise = (getOrder (tail inlist) n (i+1))
 
 
 dumbLeft :: [String] -> Int-> [String]
@@ -263,7 +244,11 @@ finalStaticMoveEv :: String -> Char -> Int -> Bool
 finalStaticMoveEv inlist c n = (check_horizontal inlist c n) || (check_left inlist c n) || (check_right inlist c n)
 
 
-
-
-
-
+crusherTillWin :: String -> Char -> Int -> Int -> [String] -> [String]
+crusherTillWin inlist c d n past
+ | null curr = past  
+ | (currBoard == 10 || currBoard == -10 ) = curr:past
+ | otherwise = crusherTillWin curr (getOpp c) d n (curr:past)
+ where{ curr = (goMinmax inlist c d n past);
+             currBoard = (board_evaluator_basic curr c n); }
+          
