@@ -221,9 +221,33 @@ pawn_counter_helper instring pawn_to_count count
 board_evaluator_basic :: String -> Char -> Int -> Int
 board_evaluator_basic instring whos_turn n
   |(not (finalStaticMoveEv instring whos_turn n)) = -10
+  |(not (finalStaticMoveEv instring (getOpp whos_turn) n)) = 10
 	|(fromIntegral (pawn_counter instring whos_turn)) < (fromIntegral ((2*n) - 1) / 2) = -10
 	|(fromIntegral (pawn_counter instring (getOpp whos_turn))) < (fromIntegral ((2*n) - 1) / 2) = 10
-	|otherwise = (pawn_counter instring whos_turn) - (pawn_counter instring (getOpp whos_turn))
+	|otherwise = (pawn_counter instring whos_turn) - (pawn_counter instring (getOpp whos_turn))+(board_heuristic instring whos_turn n)
+
+
+--purpose: takes a board (instring), current player's character (whos_turn), and the length of a side (n) and returns the count of the number of pieces
+--beyond the opponent's frontier (most advanced piece)
+board_heuristic instring whos_turn n = board_heuristic_helper instring whos_turn n (opponents_frontier instring (getOpp whos_turn) n) --position 
+board_heuristic_helper instring whos_turn n starting_position = (pawn_counter (drop starting_position instring) whos_turn) --times multiplier?
+
+--purpose: takes a board (instring), the character of the opponent (opp_char), and the side of the board (n) and returns the index in instring
+--corresponding to the last index of the line which the most advanced opp_char is located
+opponents_frontier :: String -> Char -> Int -> Int
+opponents_frontier instring opp_char n = opponents_frontier_helper instring opp_char n 0 (get_current_list instring n n 0) 
+
+
+
+opponents_frontier_helper instring opp_char n current_line_number current_list
+  |(current_line_number == ((2*n)-1)) = 0 --when the current line reaches the bottom, return 0
+  |(elem opp_char current_list) = (get_index instring n current_line_number current_list)
+  |otherwise = opponents_frontier_helper instring opp_char n (current_line_number+1) (get_current_list instring )
+
+
+get_current_list instring n current_line
+
+
 
 
 
