@@ -1,5 +1,14 @@
 import Data.List
 
+crusherTillWin :: [String] -> Char -> Int -> Int -> [String]
+crusherTillWin inlist c d n
+ | null curr = inlist
+ | (currBoard == 10 || currBoard == -10 ) = curr:inlist
+ | otherwise = crusherTillWin (curr:inlist) (getOpp c) d n
+ where{ curr = (head (crusher inlist c d n)); 
+             currBoard = (board_evaluator_basic curr c n); }
+          
+
 crusher :: [String] -> Char -> Int -> Int -> [String]
 crusher inlist c d n =  (goMinmax (head inlist) c d n inlist):inlist
 
@@ -205,8 +214,13 @@ board_evaluator_basic instring whos_turn n
   |(not (finalStaticMoveEv instring (getOpp whos_turn) n)) = 10
 	|(fromIntegral (pawn_counter instring whos_turn)) < (fromIntegral ((2*n) - 1) / 2) = -10
 	|(fromIntegral (pawn_counter instring (getOpp whos_turn))) < (fromIntegral ((2*n) - 1) / 2) = 10
-	|otherwise = (pawn_counter instring whos_turn) - (pawn_counter instring (getOpp whos_turn))
+	|otherwise = ((pawn_counter instring whos_turn) - (pawn_counter instring (getOpp whos_turn))) - (avoidCenter instring whos_turn n)
 
+avoidCenter :: String -> Char -> Int -> Int
+avoidCenter inlist c n
+ | c == 'W' = pawn_counter (concat (drop (n-1) curr)) c
+ | otherwise = pawn_counter (concat (drop (n-1) (reverse curr))) c
+ where curr = (parser inlist n 0)
 
 staticMoveEv :: String -> Char -> Int -> Bool
 staticMoveEv inlist c n
@@ -243,12 +257,3 @@ check_horizontal inlist c n = check_helper inlist c n (parser inlist n 0)
 finalStaticMoveEv :: String -> Char -> Int -> Bool
 finalStaticMoveEv inlist c n = (check_horizontal inlist c n) || (check_left inlist c n) || (check_right inlist c n)
 
-
-crusherTillWin :: String -> Char -> Int -> Int -> [String] -> [String]
-crusherTillWin inlist c d n past
- | null curr = past  
- | (currBoard == 10 || currBoard == -10 ) = curr:past
- | otherwise = crusherTillWin curr (getOpp c) d n (curr:past)
- where{ curr = (goMinmax inlist c d n past);
-             currBoard = (board_evaluator_basic curr c n); }
-          
